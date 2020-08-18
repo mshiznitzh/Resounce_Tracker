@@ -74,17 +74,17 @@ def Cleanup_Dataframe(df):
 
 def make_gnat(y_min, y_max, x_min, x_max, df):
 
-    df['Planned_Start']= df['Planned_Start'].dt.date
-    df['Planned_Finish'] = df['Planned_Finish'].dt.date
+    df['Start_Date']= df['Start_Date'].dt.date
+    df['Finish_Date'] = df['Finish_Date'].dt.date
 
-    df = df.sort_values(by=['Planned_Start'])
+    df = df.sort_values(by=['Start_Date'])
 
-    df = df[(df['Activity_Other_Resources'] == ' Ft. Worth P&amp;C Crews' )&
-            (df['Planned_Finish'] > pd.Timestamp(datetime.now()) ) &
-            (df['Planned_Finish'] < pd.Timestamp(datetime.now() + relativedelta(months=+6)) )]
+    df = df[(df['Other_Activity_Resource'] == 'Ft. Worth P&C Crews' )&
+            (df['Finish_Date'] > pd.Timestamp(datetime.now()) ) &
+            (df['Finish_Date'] < pd.Timestamp(datetime.now() + relativedelta(months=+6)) )]
 
 
-    labels=df.Project_ID.apply(str) + ' - ' + df.Activity_Description.apply(str)
+    labels=df.PETE_ID.apply(str) + ' - ' + df.Grandchild.apply(str)
     length=len(df.index)
     ticks=[]
 
@@ -94,14 +94,15 @@ def make_gnat(y_min, y_max, x_min, x_max, df):
     # Declaring a figure "gnt"
     fig, gnt = plt.subplots(figsize=(18, 20))
 
+    fig.suptitle('This is a somewhat long figure title', fontsize=16)
+
     # Setting Y-axis limits
     gnt.set_ylim(y_min, y_max)
 
     # Setting X-axis limits
 
-    #gnt.set_xlim(df['Planned_Start'].min(), '2020-12-31')
     gnt.set_xlim(date.today(), datetime.now() + relativedelta(months=+6))
-    #gnt.set_xlim('2020-08-01', df['Planned_Start'].max())
+    #gnt.set_xlim('2020-08-01', df['Start_Date'].max())
 
     # Setting labels for x-axis and y-axis
     #gnt.set_xlabel('')
@@ -119,12 +120,14 @@ def make_gnat(y_min, y_max, x_min, x_max, df):
     gnt.xaxis_date()
 
     # Declaring a bar in schedule
-    #gnt.barh([ticks[0]-ticks[0]/2, (df.Planned_Finish.values[0] - df.Planned_Start.values[0]), left=df.Planned_Start.values[0], height=ticks[0], align='center', color='orange', alpha = 0.8)
+    #gnt.barh([ticks[0]-ticks[0]/2, (df.Finish_Date.values[0] - df.Start_Date.values[0]), left=df.Start_Date.values[0], height=ticks[0], align='center', color='orange', alpha = 0.8)
     for x in range(len(df.index)):
-        if pd.notnull(df.Actual_Start.values[x]):
-            gnt.barh(ticks[x], (df.Planned_Finish.values[x] - df.Planned_Start.values[x]), left=df.Planned_Start.values[x], height=ticks[0]/2, align='center', color='maroon', alpha = 0.8)
+        if df['Start_Date_Planned\Actual'].values[x] == 'A':
+            gnt.barh(ticks[x], (df.Finish_Date.values[x] - df.Start_Date.values[x]),
+                     left=df.Start_Date.values[x], height=ticks[0]/2, align='center', color='maroon', alpha = 0.8)
         else:
-            gnt.barh(ticks[x], (df.Planned_Finish.values[x] - df.Planned_Start.values[x]), left=df.Planned_Start.values[x],
+            gnt.barh(ticks[x], (df.Finish_Date.values[x] - df.Start_Date.values[x]),
+                     left=df.Start_Date.values[x],
                  height=ticks[0] / 2, align='center', color='red', alpha=0.8)
 
     # Declaring multiple bars in at same level and same width
@@ -138,10 +141,10 @@ def make_gnat(y_min, y_max, x_min, x_max, df):
     plt.savefig("Fort Worth.png")
 
 def main():
-    Project_Data_Filename='PETE Schedules Export - 08-13-2020.xlsx'
+    Project_Data_Filename='Metro West PETE Schedules.xlsx'
 
     """ Main entry point of the app """
-    logger.info("Starting Pete Maintenance Helper")
+    logger.info("Starting Resource Tracker")
     Change_Working_Path('./Data')
     try:
         Project_Data_df = Excel_to_Pandas(Project_Data_Filename)
@@ -149,7 +152,7 @@ def main():
         logger.error('Can not find Project Data file')
         raise
 
-    make_gnat(0, 100, 180, 180, Project_Data_df)
+    make_gnat(0, 110, 180, 180, Project_Data_df)
 
 if __name__ == "__main__":
     """ This is executed when run from the command line """
