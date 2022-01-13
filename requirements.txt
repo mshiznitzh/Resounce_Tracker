@@ -35,7 +35,7 @@ Paste==3.4.0
 pdfarranger==1.6.2
 pexpect==4.8.0
 pikepdf==1.19.3
-Pillow==7.2.0
+Pillow==9.0.0
 ply==3.11
 progressbar2==3.51.4
 ptyprocess==0.6.0
